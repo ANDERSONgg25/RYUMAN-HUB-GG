@@ -1,6 +1,4 @@
-Hitbox script loaded successfully!",
-    Duration = 8
-})
+
 -- Esperar hasta que el juego esté completamente cargado
 repeat task.wait(0.25) until game:IsLoaded();
 
