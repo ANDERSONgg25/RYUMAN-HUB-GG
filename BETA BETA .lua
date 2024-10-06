@@ -1,3 +1,6 @@
+Hitbox script loaded successfully!",
+    Duration = 8
+})
 -- Esperar hasta que el juego esté completamente cargado
 repeat task.wait(0.25) until game:IsLoaded();
 
@@ -54,13 +57,15 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings" })
 }
 
--- Variables para el loop del auto click y hitbox
+-- Variables para el loop del auto click, hitbox y para almacenar la posición del clic
 local autoClickEnabled = false
 local hitboxEnabled = false
+local lastClickPosition = nil -- Variable para guardar la posición del último clic
 
 -- Usar RunService.Heartbeat para ejecutar el código en loop
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
 
 -- Toggle para el auto clicker
 Tabs.Main:AddToggle("AutoClicker", {
@@ -70,8 +75,10 @@ Tabs.Main:AddToggle("AutoClicker", {
         autoClickEnabled = Value
         task.spawn(function()
             while autoClickEnabled do
-                -- Simular el clic con VirtualUser:Button1Down
-                VirtualUser:Button1Down(Vector2.new(1e4, 1e4)) -- Clic virtual en cualquier parte
+                if lastClickPosition then
+                    -- Simular clic en la última posición guardada
+                    VirtualUser:Button1Down(lastClickPosition)
+                end
                 RunService.Heartbeat:Wait() -- Ejecutar en cada frame
             end
         end)
@@ -111,6 +118,13 @@ Tabs.Main:AddToggle("HitboxToggle", {
         end)
     end
 })
+
+-- Guardar la posición del clic cuando el jugador hace clic en la pantalla
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        lastClickPosition = input.Position -- Guardar la posición del clic
+    end
+end)
 
 -- Mostrar una notificación cuando el script se haya cargado correctamente
 Fluent:Notify({
