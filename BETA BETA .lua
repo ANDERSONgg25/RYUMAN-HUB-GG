@@ -1,8 +1,11 @@
+-- Esperar hasta que el juego esté completamente cargado
 repeat task.wait(0.25) until game:IsLoaded();
 
-getgenv().Image = "rbxassetid://76665714186511";
-getgenv().ToggleUI = "U";
+-- Configuración del botón: imagen y tecla para alternar la UI Fluent
+getgenv().Image = "rbxassetid://76665714186511"; -- ID de la imagen que aparecerá en el botón
+getgenv().ToggleUI = "U"; -- Tecla que alternará la visibilidad de la interfaz Fluent UI
 
+-- Crear el botón y añadir funcionalidad
 task.spawn(function()
     if not getgenv().LoadedMobileUI then 
         getgenv().LoadedMobileUI = true
@@ -31,42 +34,87 @@ task.spawn(function()
     end
 end)
 
+-- Cargar la librería Fluent UI desde la URL proporcionada
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
+-- Crear la ventana principal de la UI con Fluent
 local Window = Fluent:CreateWindow({
-    Title = "RYUMAN HUB",
+    Title = "RYUMAN HUB BETA",
     SubTitle = "by FINO444",
     TabWidth = 160,
-    Size = UDim2.fromOffset(380, 380),
+    Size = UDim2.fromOffset(360, 320),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.U
 })
 
+-- Crear pestañas en la UI Fluent
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main" }),
+    Settings = Window:AddTab({ Title = "Settings" })
+}
+
+-- Variables para el loop del auto click y hitbox
 local autoClickEnabled = false
+local hitboxEnabled = false
 
-local AutoClickToggle = Window:AddToggle("Auto Click", {
-    Title = "Activar Auto Click",
-    Default = false,
-    Callback = function(state)
-        autoClickEnabled = state
-    end
-})
-
-Fluent:Notify({
-    Title = "GG",
-    Content = "Script loaded successfully!",
-    Duration = 8
-})
-
+-- Usar RunService.Heartbeat para ejecutar el código en loop
+local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
 
-while true do
-    task.wait(0.05)
-
-    if autoClickEnabled then
-        VirtualUser:Button1Down(Vector2.new(1e4, 1e4))
-        task.wait(0.05)
-        VirtualUser:Button1Up(Vector2.new(1e4, 1e4))
+-- Toggle para el auto clicker
+Tabs.Main:AddToggle("AutoClicker", {
+    Title = "Auto Click",
+    Default = false,
+    Callback = function(Value)
+        autoClickEnabled = Value
+        task.spawn(function()
+            while autoClickEnabled do
+                -- Simular el clic con VirtualUser:Button1Down
+                VirtualUser:Button1Down(Vector2.new(1e4, 1e4)) -- Clic virtual en cualquier parte
+                RunService.Heartbeat:Wait() -- Ejecutar en cada frame
+            end
+        end)
     end
-end
+})
+
+-- Toggle para cambiar el tamaño de la hitbox de los jugadores
+Tabs.Main:AddToggle("HitboxToggle", {
+    Title = "Hitbox All players",
+    Default = false,
+    Callback = function(Value)
+        hitboxEnabled = Value
+        task.spawn(function()
+            while hitboxEnabled do
+                for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local rootPart = player.Character.HumanoidRootPart
+                        rootPart.Size = Vector3.new(7, 7, 7) -- Cambiar el tamaño de la hitbox a 7
+                        rootPart.Transparency = 0.5 -- Hacer la hitbox semitransparente (opcional)
+                        rootPart.CanCollide = false -- Asegurarse de que no cause colisiones extrañas
+                    end
+                end
+                task.wait(1) -- Esperar un segundo antes de revisar nuevamente
+            end
+            
+            -- Si se desactiva el toggle, restaurar la hitbox al tamaño original
+            if not hitboxEnabled then
+                for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local rootPart = player.Character.HumanoidRootPart
+                        rootPart.Size = Vector3.new(2, 2, 1) -- Restaurar el tamaño predeterminado de la hitbox
+                        rootPart.Transparency = 1 -- Restaurar la transparencia predeterminada
+                        rootPart.CanCollide = true
+                    end
+                end
+            end
+        end)
+    end
+})
+
+-- Mostrar una notificación cuando el script se haya cargado correctamente
+Fluent:Notify({
+    Title = "GG",
+    Content = "Auto Clicker and Hitbox script loaded successfully!",
+    Duration = 8
+})
