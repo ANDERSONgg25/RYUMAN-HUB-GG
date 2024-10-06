@@ -89,8 +89,8 @@ Tabs.Main:AddToggle("HitboxToggle", {
                 for _, player in pairs(game:GetService("Players"):GetPlayers()) do
                     if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                         local rootPart = player.Character.HumanoidRootPart
-                        rootPart.Size = Vector3.new(7, 7, 7) -- Cambiar el tamaño de la hitbox a 7
-                        rootPart.Transparency = 0.5 -- Hacer la hitbox semitransparente (opcional)
+                        rootPart.Size = Vector3.new(9, 9, 9) -- Cambiar el tamaño de la hitbox a 7
+                        rootPart.Transparency = 0.3 -- Hacer la hitbox semitransparente (opcional)
                         rootPart.CanCollide = false -- Asegurarse de que no cause colisiones extrañas
                     end
                 end
