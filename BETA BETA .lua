@@ -1,4 +1,3 @@
-
 -- Esperar hasta que el juego esté completamente cargado
 repeat task.wait(0.25) until game:IsLoaded();
 
@@ -120,7 +119,7 @@ Tabs.Main:AddToggle("HitboxToggle", {
 -- Guardar la posición del clic cuando el jugador hace clic en la pantalla
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        lastClickPosition = input.Position -- Guardar la posición del clic
+        lastClickPosition = Vector2.new(input.Position.X, input.Position.Y) -- Asegúrate de que es un Vector2
     end
 end)
 
